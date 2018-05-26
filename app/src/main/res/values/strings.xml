@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TelemedycynaProjekt</string>
+    <string name="unknown_device">Nieznane urządzenie</string>
 </resources>
