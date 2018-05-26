@@ -1,4 +1,22 @@
 <resources>
     <string name="app_name">TelemedycynaProjekt</string>
-    <string name="unknown_device">Nieznane urządzenie</string>
+
+    <string name="unknownDevice">Nieznane urządzenie</string>
+    <string name="ble_not_supported">BLE nie jest obsługiwany</string>
+    <string name="label_data">Dane:</string>
+    <string name="label_device_address">Adres urządzenia:</string>
+    <string name="label_state">State:</string>
+    <string name="no_data">Brak danych</string>
+    <string name="connected">Połączony</string>
+    <string name="disconnected">Rozłączony</string>
+    <string name="title_devices">BLE Device Scan</string>
+    <string name="error_bluetooth_not_supported">Bluetooth/GPSjest wyłączony.</string>
+    <string name="unknown_characteristic">Nieznana charakterystyka</string>
+    <string name="unknown_service">Nieznany serwis</string>
+
+    <!-- Menu items -->
+    <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_scan">Skan</string>
+    <string name="menu_stop">Stop</string>
 </resources>
