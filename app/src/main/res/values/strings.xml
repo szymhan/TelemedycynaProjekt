@@ -13,10 +13,11 @@
     <string name="error_bluetooth_not_supported">Bluetooth/GPSjest wyłączony.</string>
     <string name="unknown_characteristic">Nieznana charakterystyka</string>
     <string name="unknown_service">Nieznany serwis</string>
+    <string name="detected_devices">Wykryte urządzenia :</string>
 
     <!-- Menu items -->
     <string name="menu_connect">Connect</string>
     <string name="menu_disconnect">Disconnect</string>
-    <string name="menu_scan">Skan</string>
+    <string name="menu_scan">Skanuj</string>
     <string name="menu_stop">Stop</string>
 </resources>
