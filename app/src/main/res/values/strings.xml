@@ -20,4 +20,15 @@
     <string name="menu_disconnect">Disconnect</string>
     <string name="menu_scan">Skanuj</string>
     <string name="menu_stop">Stop</string>
+
+    <!-- Device Controls -->
+    <string name="jeden">Przegródka #1</string>
+    <string name="dwa">Przegródka #2</string>
+    <string name="trzy">Przegródka #3</string>
+    <string name="cztery">Przegródka #4</string>
+
+    <string name="ilosc_1">---</string>
+    <string name="ilosc_2">---</string>
+    <string name="ilosc_3">---</string>
+    <string name="ilosc_4">---</string>
 </resources>

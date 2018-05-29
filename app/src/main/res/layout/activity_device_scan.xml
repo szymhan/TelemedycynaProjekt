@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/detected_devices_text"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/scanButton"
         android:text="@string/detected_devices"
         android:gravity="center"
         android:textSize="30dp"
@@ -43,7 +43,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/scanButton">
+        android:layout_below="@+id/detected_devices_text">
     </ListView>
 
 
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/detected_devices_text"
+        android:layout_below="@+id/toolbar"
         android:background="@drawable/scanning_button"
         android:text="@string/menu_stop"
     android:layout_marginBottom="20dp"
