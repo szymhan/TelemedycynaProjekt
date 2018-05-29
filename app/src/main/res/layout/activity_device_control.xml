@@ -3,11 +3,52 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_marginTop="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/linear1">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:gravity="center_horizontal"
+            android:text="@string/app_name"
+            android:textColor="@color/redText"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            />
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/pills"
+            android:layout_gravity="center_vertical"
+            />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/Urzadzenie_polaczone"
+        android:gravity="center_horizontal"
+        android:textColor="#2ecc71"
+        android:textStyle="bold"
+        android:layout_below="@id/linear1"/>
     <LinearLayout
         android:id="@+id/firstLine"
-        android:layout_marginTop="140dp"
+        android:layout_marginTop="180dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:weightSum="2"
@@ -34,7 +75,9 @@
                     android:gravity="center_horizontal"
                     android:id="@+id/ilosc_1"
                     android:layout_below="@id/name1"
-                    android:text="@string/ilosc_1"/>
+                    android:text="@string/ilosc_1"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
             </RelativeLayout>
 
 
@@ -60,7 +103,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/ilosc_2"
                     android:gravity="center_horizontal"
-                    android:id="@+id/ilosc_2"/>
+                    android:id="@+id/ilosc_2"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
 
             </RelativeLayout>
 
@@ -97,7 +142,9 @@
                     android:layout_below="@id/name_3"
                     android:gravity="center_horizontal"
                     android:layout_marginTop="10dp"
-                    android:id="@+id/ilosc_3"/>
+                    android:id="@+id/ilosc_3"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
             </RelativeLayout>
 
 
@@ -123,7 +170,9 @@
                     android:text="@string/ilosc_4"
                     android:layout_marginTop="10dp"
                     android:gravity="center_horizontal"
-                    android:id="@+id/ilosc_4"/>
+                    android:id="@+id/ilosc_4"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
             </RelativeLayout>
 
         </LinearLayout>

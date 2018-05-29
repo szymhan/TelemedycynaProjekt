@@ -6,11 +6,14 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -63,7 +66,8 @@ public class DeviceControlActivity extends AppCompatActivity {
         mTextView2=findViewById(R.id.ilosc_2);
         mTextView3=findViewById(R.id.ilosc_3);
         mTextView4 =findViewById(R.id.ilosc_4);
-
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
 
         mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
@@ -215,22 +219,22 @@ public class DeviceControlActivity extends AppCompatActivity {
             switch (mState) {
                 case 0:
                     Log.d(TAG, "Set notify characteristic1 (przegródka1)");
-                    characteristic = gatt.getService(PRESSURE_SERVICE)
+                    characteristic = gatt.getService(SERVICE_UUID)
                             .getCharacteristic(CHARACTERISTIC1_UUID);
                     break;
                 case 1:
                     Log.d(TAG, "Set notify characteristic2 (przegródka2)");
-                    characteristic = gatt.getService(PRESSURE_SERVICE)
+                    characteristic = gatt.getService(SERVICE_UUID)
                             .getCharacteristic(CHARACTERISTIC2_UUID);
                     break;
                 case 2:
                     Log.d(TAG, "Set notify characteristic3 (przegródka3)");
-                    characteristic = gatt.getService(HUMIDITY_SERVICE)
+                    characteristic = gatt.getService(SERVICE_UUID)
                             .getCharacteristic(CHARACTERISTIC3_UUID);
                     break;
                 case 3:
                     Log.d(TAG, "Set notify characteristic4 (przegródka4)");
-                    characteristic = gatt.getService(HUMIDITY_SERVICE)
+                    characteristic = gatt.getService(SERVICE_UUID)
                             .getCharacteristic(CHARACTERISTIC4_UUID);
                     break;
                 default:
@@ -418,7 +422,8 @@ public class DeviceControlActivity extends AppCompatActivity {
 
         byte [] dataInput1 = characteristic.getValue();
         int przegrodka1 = toInt(dataInput1);
-        mTextView1.setText(przegrodka1);
+        mTextView1.setText(String.valueOf(przegrodka1));
+        updateColor(mTextView1,przegrodka1);
 
     }
 
@@ -427,7 +432,8 @@ public class DeviceControlActivity extends AppCompatActivity {
         //TODO: WYSWIETLENIE WARTOSCI DANEJ CHARAKTERYSTYKI2
         byte [] dataInput2 = characteristic.getValue();
         int przegrodka2 = toInt(dataInput2);
-        mTextView2.setText(przegrodka2);
+        mTextView2.setText(String.valueOf(przegrodka2));
+        updateColor(mTextView2,przegrodka2);
 
     }
 
@@ -435,17 +441,15 @@ public class DeviceControlActivity extends AppCompatActivity {
         //TODO: WYSWIETLENIE WARTOSCI DANEJ CHARAKTERYSTYKI3
         byte [] dataInput3 = characteristic.getValue();
         int przegrodka3 = toInt(dataInput3);
-        mTextView2.setText(przegrodka3);
-
-        //mTemperature.setText(String.format("%.1f\u00B0C", temp));
-        // mPressure.setText(String.format("%.2f", pressure));
+        mTextView3.setText(String.valueOf(przegrodka3));
+        updateColor(mTextView3,przegrodka3);
     }
     private void updatePrzegródka4(BluetoothGattCharacteristic characteristic) {
         //TODO: WYSWIETLENIE WARTOSCI DANEJ CHARAKTERYSTYKI4
         byte [] dataInput4 = characteristic.getValue();
         int przegrodka4 = toInt(dataInput4);
-        mTextView4.setText(przegrodka4);
-
+        mTextView4.setText(String.valueOf(przegrodka4));
+        updateColor(mTextView4,przegrodka4);
     }
 
     private void clearDisplayValues() {
@@ -472,6 +476,22 @@ public class DeviceControlActivity extends AppCompatActivity {
         String s1=bytesToString(b1);
         int y=Integer.parseInt(s1);
         return y;
+    }
+
+    private void updateColor (TextView textView, int a)
+    {
+        if(a==3||a==2)
+        {
+            textView.setTextColor(Color.rgb(230,126,34));
+        }
+        else if(a==1|| a==0)
+        {
+            textView.setTextColor(Color.RED);
+        }
+        else
+        {
+            textView.setTextColor(Color.GREEN);
+        }
     }
 
 }
