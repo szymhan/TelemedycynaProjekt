@@ -1,5 +1,6 @@
 package pl.domatslaski.telemedycynaprojekt;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -8,38 +9,33 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ExpandableListView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import static pl.domatslaski.telemedycynaprojekt.BluetoothLeService.ACTION_GATT_DISCONNECTED;
 
 public class DeviceControlActivity extends AppCompatActivity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
-
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
+    private final Context context = this;
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    private static int mPrzegrodkaChosen;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothAdapter mBluetoothAdapter;
     private String mDeviceAddress;
@@ -51,6 +47,13 @@ public class DeviceControlActivity extends AppCompatActivity {
     TextView mTextView2;
     TextView mTextView3;
     TextView mTextView4;
+    Button mAddPills1;
+    Button mAddPills2;
+    Button mAddPills3;
+    Button mAddPills4;
+    EditText mAddPillsnumber;
+    private static int getAddedPillsNumber;
+
 
 
 
@@ -66,12 +69,201 @@ public class DeviceControlActivity extends AppCompatActivity {
         mTextView2=findViewById(R.id.ilosc_2);
         mTextView3=findViewById(R.id.ilosc_3);
         mTextView4 =findViewById(R.id.ilosc_4);
+        mAddPills1 = findViewById(R.id.add_pills1);
+        mAddPills2=findViewById(R.id.add_pills2);
+        mAddPills3=findViewById(R.id.add_pills3);
+        mAddPills4=findViewById(R.id.add_pills4);
+
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
 
         mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
+
+
+        mAddPills1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get prompts.xml view
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // konwersja wprowadzonego tekstu do int
+                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
+
+                                        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                .getCharacteristic(CHARACTERISTIC1_UUID);
+                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        getAddedPillsNumber=0;
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        });
+
+        mAddPills2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get prompts.xml view
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // konwersja wprowadzonego tekstu do int
+                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
+
+                                        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                .getCharacteristic(CHARACTERISTIC2_UUID);
+                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        getAddedPillsNumber=0;
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+            }
+        });
+
+        mAddPills3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get prompts.xml view
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // konwersja wprowadzonego tekstu do int
+                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
+
+                                        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                .getCharacteristic(CHARACTERISTIC3_UUID);
+                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        getAddedPillsNumber=0;
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        });
+
+        mAddPills4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get prompts.xml view
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // konwersja wprowadzonego tekstu do int
+                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
+
+                                        BluetoothGattCharacteristic characteristic =
+                                                mBluetoothGatt.getService(SERVICE_UUID)
+                                                .getCharacteristic(CHARACTERISTIC4_UUID);
+                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        getAddedPillsNumber=0;
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+            }
+        });
 
     }
 
@@ -107,16 +299,6 @@ public class DeviceControlActivity extends AppCompatActivity {
 
 
     }
-
-    /* Humidity Service */
-    private static final UUID HUMIDITY_SERVICE = UUID.fromString("f000aa20-0451-4000-b000-000000000000");
-    private static final UUID HUMIDITY_DATA_CHAR = UUID.fromString("f000aa21-0451-4000-b000-000000000000");
-    private static final UUID HUMIDITY_CONFIG_CHAR = UUID.fromString("f000aa22-0451-4000-b000-000000000000");
-    /* Barometric Pressure Service */
-    private static final UUID PRESSURE_SERVICE = UUID.fromString("f000aa40-0451-4000-b000-000000000000");
-    private static final UUID PRESSURE_DATA_CHAR = UUID.fromString("f000aa41-0451-4000-b000-000000000000");
-    private static final UUID PRESSURE_CONFIG_CHAR = UUID.fromString("f000aa42-0451-4000-b000-000000000000");
-    private static final UUID PRESSURE_CAL_CHAR = UUID.fromString("f000aa43-0451-4000-b000-000000000000");
     /*MOJE NUMERY SERWISÓW I CHARAKTERYSTYK*/
     private static final UUID SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
     private static final UUID CHARACTERISTIC1_UUID = UUID.fromString( "beb5483e-36e1-4688-b7f5-ea07361b26a8");
@@ -127,9 +309,6 @@ public class DeviceControlActivity extends AppCompatActivity {
     private static final UUID CONFIG_DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
 
-
-
-
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 
         /* State Machine Tracking */
@@ -138,42 +317,6 @@ public class DeviceControlActivity extends AppCompatActivity {
         private void reset() { mState = 0; }
 
         private void advance() { mState++; }
-
-        /*
-         * Send an enable command to each sensor by writing a configuration
-         * characteristic.  This is specific to the SensorTag to keep power
-         * low by disabling sensors you aren't using.
-         */
-        private void enableNextSensor(BluetoothGatt gatt) {
-            BluetoothGattCharacteristic characteristic;
-            switch (mState) {
-                case 0:
-                    Log.d(TAG, "Enabling pressure cal");
-                    characteristic = gatt.getService(PRESSURE_SERVICE)
-                            .getCharacteristic(PRESSURE_CONFIG_CHAR);
-                    characteristic.setValue(new byte[] {0x02});
-                    break;
-                case 1:
-                    Log.d(TAG, "Enabling pressure");
-                    characteristic = gatt.getService(PRESSURE_SERVICE)
-                            .getCharacteristic(PRESSURE_CONFIG_CHAR);
-                    characteristic.setValue(new byte[] {0x01});
-                    break;
-                case 2:
-                    Log.d(TAG, "Enabling humidity");
-                    characteristic = gatt.getService(HUMIDITY_SERVICE)
-                            .getCharacteristic(HUMIDITY_CONFIG_CHAR);
-                    characteristic.setValue(new byte[] {0x01});
-                    break;
-                default:
-                    //mHandler.sendEmptyMessage(MSG_DISMISS);
-                    Log.i(TAG, "All Sensors Enabled");
-                    return;
-            }
-
-            gatt.writeCharacteristic(characteristic);
-        }
-
         /*
          * Read the data characteristic's value for each sensor explicitly
          */
@@ -311,7 +454,7 @@ public class DeviceControlActivity extends AppCompatActivity {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             //After writing the enable flag, next we read the initial value
-            readNextSensor(gatt);
+            setNotifyNextSensor(gatt);
         }
 
         @Override
@@ -406,7 +549,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                         Log.w(TAG, "Nie udalo się pozyskać danych dla 4 przegródki");
                         return;
                     }
-                    updatePrzegródka4(characteristic);
+                    updatePrzegrodka4(characteristic);
                     break;
                 case MSG_CLEAR:
                     clearDisplayValues();
@@ -444,12 +587,25 @@ public class DeviceControlActivity extends AppCompatActivity {
         mTextView3.setText(String.valueOf(przegrodka3));
         updateColor(mTextView3,przegrodka3);
     }
-    private void updatePrzegródka4(BluetoothGattCharacteristic characteristic) {
+    private void updatePrzegrodka4(BluetoothGattCharacteristic characteristic) {
         //TODO: WYSWIETLENIE WARTOSCI DANEJ CHARAKTERYSTYKI4
         byte [] dataInput4 = characteristic.getValue();
         int przegrodka4 = toInt(dataInput4);
         mTextView4.setText(String.valueOf(przegrodka4));
         updateColor(mTextView4,przegrodka4);
+    }
+
+
+    private void addValueToPrzegrodka(BluetoothGattCharacteristic characteristic, int a)
+    {
+        byte [] dataInput1 = characteristic.getValue();
+        int przegrodka1 = toInt(dataInput1);
+        a = a+ przegrodka1;
+        a=a+48; //zeby zamienic na hex
+        byte[] bytes = ByteBuffer.allocate(4).putInt(a).array();
+        byte [] postBytes={bytes[3]};
+        characteristic.setValue(postBytes);
+        mBluetoothGatt.writeCharacteristic(characteristic);
     }
 
     private void clearDisplayValues() {
@@ -474,6 +630,7 @@ public class DeviceControlActivity extends AppCompatActivity {
     private int toInt(byte [] b1)
     {
         String s1=bytesToString(b1);
+        Log.d(TAG,s1);
         int y=Integer.parseInt(s1);
         return y;
     }
@@ -494,5 +651,9 @@ public class DeviceControlActivity extends AppCompatActivity {
         }
     }
 
-}
 
+
+
+
+
+}
