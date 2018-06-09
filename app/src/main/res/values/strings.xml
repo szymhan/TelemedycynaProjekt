@@ -30,4 +30,9 @@
     <string name="ilosc_3">---</string>
     <string name="ilosc_4">---</string>
     <string name="plus">+</string>
+    <string name="hours_count">Co ile godzin?</string>
+    <string name="okay">OK</string>
+    <string name="take">W E Ź </string>
+    <string name="a_pill">T A B L E T K Ę !</string>
+    <string name="i_took">WZIĄŁEM</string>
 </resources>

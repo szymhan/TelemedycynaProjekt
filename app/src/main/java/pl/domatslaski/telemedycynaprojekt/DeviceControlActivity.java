@@ -1,6 +1,9 @@
 package pl.domatslaski.telemedycynaprojekt;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -13,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -21,13 +25,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 
 public class DeviceControlActivity extends AppCompatActivity {
@@ -43,18 +60,10 @@ public class DeviceControlActivity extends AppCompatActivity {
     private boolean mConnected = false;
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
-    TextView mTextView1;
-    TextView mTextView2;
-    TextView mTextView3;
-    TextView mTextView4;
-    Button mAddPills1;
-    Button mAddPills2;
-    Button mAddPills3;
-    Button mAddPills4;
-    EditText mAddPillsnumber;
+    TextView mTextView1, mTextView2, mTextView3,mTextView4;
+    Button mAddPills1, mAddPills2,mAddPills3, mAddPills4;
+    ImageButton mAddAlarm1,mAddAlarm2,mAddAlarm3,mAddAlarm4;
     private static int getAddedPillsNumber;
-
-
 
 
     @Override
@@ -73,13 +82,17 @@ public class DeviceControlActivity extends AppCompatActivity {
         mAddPills2=findViewById(R.id.add_pills2);
         mAddPills3=findViewById(R.id.add_pills3);
         mAddPills4=findViewById(R.id.add_pills4);
+        mAddAlarm1=findViewById(R.id.alarm_pills1);
+        mAddAlarm2=findViewById(R.id.alarm_pills2);
+        mAddAlarm3=findViewById(R.id.alarm_pills3);
+        mAddAlarm4=findViewById(R.id.alarm_pills4);
+
 
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-
         mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
-
         mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
+
 
 
         mAddPills1.setOnClickListener(new View.OnClickListener() {
@@ -265,7 +278,51 @@ public class DeviceControlActivity extends AppCompatActivity {
             }
         });
 
+        mAddAlarm1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(context);
+                View setAlarmView = li.inflate(R.layout.alarm_setting, null);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+                alertDialogBuilder.setView(setAlarmView);
+                final EditText userInput = setAlarmView.findViewById(R.id.hourInterval_edittext);
+               final  TimePicker timePicker = setAlarmView.findViewById(R.id.timepicker);
+               timePicker.setIs24HourView(true);
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        int hourInterval=0;
+                                        hourInterval = Integer.parseInt(userInput.getText().toString());
+                                        //TODO: add the interval to database
+                                        setAlarm(1,timePicker.getHour(),timePicker.getMinute(),hourInterval);
+                                     //   Toast.makeText(context,timePicker.getHour()+":"+timePicker.getMinute()+", "+hourInterval,Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+
+            }
+        });
+
+
     }
+
+
 
     @Override
     protected void onResume() {
@@ -294,19 +351,20 @@ public class DeviceControlActivity extends AppCompatActivity {
             finish();
             return;
         }
+
         //mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
         mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
 
 
     }
     /*MOJE NUMERY SERWISÓW I CHARAKTERYSTYK*/
-    private static final UUID SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
+    private static final UUID SERVICE_UUID         = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
     private static final UUID CHARACTERISTIC1_UUID = UUID.fromString( "beb5483e-36e1-4688-b7f5-ea07361b26a8");
     private static final UUID CHARACTERISTIC2_UUID = UUID.fromString( "324cc283-b005-4d4d-983d-4b869f282b47");
     private static final UUID CHARACTERISTIC3_UUID = UUID.fromString( "247dae46-a006-4e82-8ace-a09ec6f0cc01");
     private static final UUID CHARACTERISTIC4_UUID = UUID.fromString( "28439fca-4e20-4d59-9510-19b5c14bc918");
     /* Client Configuration Descriptor */
-    private static final UUID CONFIG_DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    private static final UUID CONFIG_DESCRIPTOR    = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
 
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -514,49 +572,64 @@ public class DeviceControlActivity extends AppCompatActivity {
     //  private static final int MSG_PROGRESS = 201;
     // private static final int MSG_DISMISS = 202;
     private static final int MSG_CLEAR = 301;
-    private  Handler mHandler = new Handler() {
+
+    private static class MyHandler extends Handler
+    {
+        private final WeakReference<DeviceControlActivity> mActivity;
+        public MyHandler( DeviceControlActivity activity){
+            mActivity = new WeakReference<DeviceControlActivity>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            BluetoothGattCharacteristic characteristic;
-            switch (msg.what) {
-                case MSG_1:
-                    characteristic = (BluetoothGattCharacteristic) msg.obj;
-                    if (characteristic.getValue() == null) {
-                        Log.w(TAG, "Nie udalo się pozyskać danych dla 1 przegródki");
-                        return;
-                    }
-                    updatePrzegrodka1(characteristic);
-                    break;
-                case MSG_2:
-                    characteristic = (BluetoothGattCharacteristic) msg.obj;
-                    if (characteristic.getValue() == null) {
-                        Log.w(TAG, "Nie udalo się pozyskać danych dla 2 przegródki");
-                        return;
-                    }
-                    updatePrzegrodka2(characteristic);
-                    break;
-                case MSG_3:
-                    characteristic = (BluetoothGattCharacteristic) msg.obj;
-                    if (characteristic.getValue() == null) {
-                        Log.w(TAG, "Nie udalo się pozyskać danych dla 3 przegródki");
-                        return;
-                    }
-                    updatePrzegrodka3(characteristic);
-                    break;
-                case MSG_4:
-                    characteristic = (BluetoothGattCharacteristic) msg.obj;
-                    if (characteristic.getValue() == null) {
-                        Log.w(TAG, "Nie udalo się pozyskać danych dla 4 przegródki");
-                        return;
-                    }
-                    updatePrzegrodka4(characteristic);
-                    break;
-                case MSG_CLEAR:
-                    clearDisplayValues();
-                    break;
+            DeviceControlActivity activity = mActivity.get();
+            if (activity!=null)
+            {
+
+                BluetoothGattCharacteristic characteristic;
+                switch (msg.what) {
+                    case MSG_1:
+                        characteristic = (BluetoothGattCharacteristic) msg.obj;
+                        if (characteristic.getValue() == null) {
+                            Log.w(TAG, "Nie udalo się pozyskać danych dla 1 przegródki");
+                            return;
+                        }
+
+                        activity.updatePrzegrodka1(characteristic);
+                        break;
+                    case MSG_2:
+                        characteristic = (BluetoothGattCharacteristic) msg.obj;
+                        if (characteristic.getValue() == null) {
+                            Log.w(TAG, "Nie udalo się pozyskać danych dla 2 przegródki");
+                            return;
+                        }
+                        activity.updatePrzegrodka2(characteristic);
+                        break;
+                    case MSG_3:
+                        characteristic = (BluetoothGattCharacteristic) msg.obj;
+                        if (characteristic.getValue() == null) {
+                            Log.w(TAG, "Nie udalo się pozyskać danych dla 3 przegródki");
+                            return;
+                        }
+                        activity.updatePrzegrodka3(characteristic);
+                        break;
+                    case MSG_4:
+                        characteristic = (BluetoothGattCharacteristic) msg.obj;
+                        if (characteristic.getValue() == null) {
+                            Log.w(TAG, "Nie udalo się pozyskać danych dla 4 przegródki");
+                            return;
+                        }
+                        activity.updatePrzegrodka4(characteristic);
+                        break;
+                    case MSG_CLEAR:
+                        activity.clearDisplayValues();
+                        break;
+                }
             }
         }
-    };
+    }
+    private  MyHandler mHandler = new MyHandler(this);
+
 
     /* Methods to extract sensor data and update the UI */
 
@@ -570,10 +643,14 @@ public class DeviceControlActivity extends AppCompatActivity {
 
     }
 
-
     private void updatePrzegrodka2(BluetoothGattCharacteristic characteristic) {
         //TODO: WYSWIETLENIE WARTOSCI DANEJ CHARAKTERYSTYKI2
         byte [] dataInput2 = characteristic.getValue();
+        if(dataInput2==null)
+        {
+            Toast.makeText(getApplicationContext(),"Nie udało sie. Spróbuj ponownie za chwilę.",Toast.LENGTH_SHORT).show();
+            return;
+        }
         int przegrodka2 = toInt(dataInput2);
         mTextView2.setText(String.valueOf(przegrodka2));
         updateColor(mTextView2,przegrodka2);
@@ -601,12 +678,19 @@ public class DeviceControlActivity extends AppCompatActivity {
         byte [] dataInput1 = characteristic.getValue();
         int przegrodka1 = toInt(dataInput1);
         a = a+ przegrodka1;
-        a=a+48; //zeby zamienic na hex
-        byte[] bytes = ByteBuffer.allocate(4).putInt(a).array();
-        byte [] postBytes={bytes[3]};
-        characteristic.setValue(postBytes);
-        mBluetoothGatt.writeCharacteristic(characteristic);
-    }
+        if(a<=9)
+        {
+            a=a+48; //zeby zamienic na hex
+            byte[] bytes = ByteBuffer.allocate(4).putInt(a).array();
+            byte [] postBytes={bytes[3]};
+            characteristic.setValue(postBytes);
+            mBluetoothGatt.writeCharacteristic(characteristic);
+        } else {
+            Toast.makeText(this,"Nie można mieć więcej niż 9 tabletek",Toast.LENGTH_SHORT).show();
+        }
+
+        }
+
 
     private void clearDisplayValues() {
         // TODO: UZUPELNIENIE ZEROWANIA WYSWIETLANYCH WARTOSCI (ILOSCI TABLETEK)
@@ -652,6 +736,25 @@ public class DeviceControlActivity extends AppCompatActivity {
     }
 
 
+    void setAlarm(int id, int hour, int minute, int hourInterval)
+    {
+        Calendar cal= Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY,hour);
+        cal.set(Calendar.MINUTE,minute);
+        cal.set(Calendar.SECOND,0);
+      //  cal.add(Calendar.MINUTE,1);
+        AlarmManager alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+      intent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
+       intent.putExtra("PRZEGRODKA_NUMBER",id);
+       intent.putExtra("HOUR_INTERVAL",hourInterval);
+        PendingIntent pendingIntent=PendingIntent.getBroadcast(this,id,intent,0);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pendingIntent);
+        Log.d(TAG,cal.getTimeInMillis() + "pozostalo do alarmu");
+        Log.d(TAG,cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+" dodano alarm");
+        Toast.makeText(getApplicationContext(),cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+" dodano alarm",Toast.LENGTH_SHORT).show();
+        //TODO: PROCES DODAWANIA DO BAZY, SPRAWDZENIE POPRAWNOSCI GODZINY BLA BLA BLA
+    }
 
 
 
