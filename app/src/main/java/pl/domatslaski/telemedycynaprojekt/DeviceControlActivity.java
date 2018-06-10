@@ -62,7 +62,7 @@ public class DeviceControlActivity extends AppCompatActivity {
     private final String LIST_UUID = "UUID";
     TextView mTextView1, mTextView2, mTextView3,mTextView4;
     Button mAddPills1, mAddPills2,mAddPills3, mAddPills4;
-    ImageButton mAddAlarm1,mAddAlarm2,mAddAlarm3,mAddAlarm4;
+    ImageButton mAddAlarm1,mAddAlarm2,mAddAlarm3,mAddAlarm4,mDelete1,mDelete2,mDelete3,mDelete4;
     private static int getAddedPillsNumber;
 
 
@@ -86,6 +86,10 @@ public class DeviceControlActivity extends AppCompatActivity {
         mAddAlarm2=findViewById(R.id.alarm_pills2);
         mAddAlarm3=findViewById(R.id.alarm_pills3);
         mAddAlarm4=findViewById(R.id.alarm_pills4);
+        mDelete1=findViewById(R.id.deletebutton1);
+        mDelete2=findViewById(R.id.deletebutton2);
+        mDelete3=findViewById(R.id.deletebutton3);
+        mDelete4=findViewById(R.id.deletebutton4);
 
 
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -95,229 +99,15 @@ public class DeviceControlActivity extends AppCompatActivity {
 
 
 
-        mAddPills1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get prompts.xml view
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompt, null);
+            addPills(mAddPills1,1);
+            addPills(mAddPills2,2);
+            addPills(mAddPills3,3);
+            addPills(mAddPills4,4);
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-
-                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        // konwersja wprowadzonego tekstu do int
-                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
-
-                                        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                                                .getCharacteristic(CHARACTERISTIC1_UUID);
-                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
-                                        getAddedPillsNumber=0;
-                                    }
-                                })
-                        .setNegativeButton("Anuluj",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-
-            }
-        });
-
-        mAddPills2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get prompts.xml view
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompt, null);
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-
-                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        // konwersja wprowadzonego tekstu do int
-                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
-
-                                        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                                                .getCharacteristic(CHARACTERISTIC2_UUID);
-                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
-                                        getAddedPillsNumber=0;
-                                    }
-                                })
-                        .setNegativeButton("Anuluj",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-            }
-        });
-
-        mAddPills3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get prompts.xml view
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompt, null);
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-
-                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        // konwersja wprowadzonego tekstu do int
-                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
-
-                                        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                                                .getCharacteristic(CHARACTERISTIC3_UUID);
-                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
-                                        getAddedPillsNumber=0;
-                                    }
-                                })
-                        .setNegativeButton("Anuluj",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-
-            }
-        });
-
-        mAddPills4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get prompts.xml view
-                LayoutInflater li = LayoutInflater.from(context);
-                View promptsView = li.inflate(R.layout.prompt, null);
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
-
-                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        // konwersja wprowadzonego tekstu do int
-                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
-
-                                        BluetoothGattCharacteristic characteristic =
-                                                mBluetoothGatt.getService(SERVICE_UUID)
-                                                .getCharacteristic(CHARACTERISTIC4_UUID);
-                                        addValueToPrzegrodka(characteristic,getAddedPillsNumber);
-                                        getAddedPillsNumber=0;
-                                    }
-                                })
-                        .setNegativeButton("Anuluj",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-            }
-        });
-
-        mAddAlarm1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(context);
-                View setAlarmView = li.inflate(R.layout.alarm_setting, null);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-                alertDialogBuilder.setView(setAlarmView);
-                final EditText userInput = setAlarmView.findViewById(R.id.hourInterval_edittext);
-               final  TimePicker timePicker = setAlarmView.findViewById(R.id.timepicker);
-               timePicker.setIs24HourView(true);
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        int hourInterval=0;
-                                        hourInterval = Integer.parseInt(userInput.getText().toString());
-                                        //TODO: add the interval to database
-                                        setAlarm(1,timePicker.getHour(),timePicker.getMinute(),hourInterval);
-                                     //   Toast.makeText(context,timePicker.getHour()+":"+timePicker.getMinute()+", "+hourInterval,Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                        .setNegativeButton("Anuluj",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-
-
-            }
-        });
+            setAlarmListener(mAddAlarm1,1);
+            setAlarmListener(mAddAlarm2,2);
+            setAlarmListener(mAddAlarm3,3);
+            setAlarmListener(mAddAlarm4,4);
 
 
     }
@@ -735,7 +525,127 @@ public class DeviceControlActivity extends AppCompatActivity {
         }
     }
 
+    void addPills(Button button, final int switchInt){
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get prompts.xml view
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.prompt, null);
 
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = promptsView.findViewById(R.id.add_pills_number_edit_text);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // konwersja wprowadzonego tekstu do int
+                                        getAddedPillsNumber=Integer.parseInt(userInput.getText().toString());
+
+                                        if(switchInt==1)
+                                        {
+                                            BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                    .getCharacteristic(CHARACTERISTIC1_UUID);
+                                            addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        }
+                                        else if(switchInt==2)
+                                        {
+                                            BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                    .getCharacteristic(CHARACTERISTIC2_UUID);
+                                            addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        }
+                                        else if(switchInt==3)
+                                        {
+                                            BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                    .getCharacteristic(CHARACTERISTIC3_UUID);
+                                            addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        }
+                                        else if(switchInt==4)
+                                        {
+                                            BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
+                                                    .getCharacteristic(CHARACTERISTIC1_UUID);
+                                            addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        }
+
+                                        getAddedPillsNumber=0;
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        });
+    }
+
+    void setAlarmListener(ImageButton button, final int buttonID)
+    {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(context);
+                View setAlarmView = li.inflate(R.layout.alarm_setting, null);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+                alertDialogBuilder.setView(setAlarmView);
+                final EditText userInput = setAlarmView.findViewById(R.id.hourInterval_edittext);
+                final  TimePicker timePicker = setAlarmView.findViewById(R.id.timepicker);
+                timePicker.setIs24HourView(true);
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+
+                                        if(userInput.getText().toString().equals(""))
+                                        {
+                                            dialog.cancel();
+                                            Toast.makeText(getApplicationContext(),"Nie ustawiłeś odstępu!",Toast.LENGTH_SHORT).show();
+                                        }
+                                        else
+                                        {
+                                            int hourInterval = Integer.parseInt(userInput.getText().toString());
+                                            setAlarm(buttonID,timePicker.getHour(),timePicker.getMinute(),hourInterval);
+                                        }
+
+                                        //TODO: add the interval to database
+
+                                    }
+                                })
+                        .setNegativeButton("Anuluj",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        });
+    }
     void setAlarm(int id, int hour, int minute, int hourInterval)
     {
         Calendar cal= Calendar.getInstance();

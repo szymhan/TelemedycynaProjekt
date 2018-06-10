@@ -6,4 +6,8 @@
     <color name="toolbar">#bdc3c7</color>
     <color name="blackText">#000000</color>
     <color name="redText">#FF4c3c</color>
+    <color name="yellowbackgroud">#f1c40f</color>
+    <color name="redbackground">#d63031</color>
+    <color name="bluebackground">#0984e3</color>
+    <color name="greenbackground">#10ac84</color>
 </resources>
