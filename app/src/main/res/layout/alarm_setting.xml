@@ -18,22 +18,6 @@
         <Space
             android:layout_width="50dp"
             android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hours_count"
-            android:textSize="15sp"/>
-        <Space
-            android:layout_width="30dp"
-            android:layout_height="wrap_content" />
-
-        <EditText
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/hourInterval_edittext"
-            android:inputType="number">
-            <requestFocus />
-            </EditText>
 
 
     </LinearLayout>

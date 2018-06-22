@@ -3,8 +3,18 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <ImageButton
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/info_button"
+        android:background="@drawable/info"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="10dp"/>
+
     <LinearLayout
-        android:layout_marginTop="60dp"
+        android:layout_below="@id/info_button"
+        android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -48,7 +58,7 @@
         android:layout_below="@id/linear1"/>
     <LinearLayout
         android:id="@+id/firstLine"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="130dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:weightSum="2"
@@ -98,7 +108,7 @@
                         android:background="@drawable/bin"/>
 
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
                     <ImageButton
                         android:id="@+id/alarm_pills1"
@@ -108,7 +118,7 @@
                         android:background="@drawable/alarmclock"
                         />
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
                     <Button
                         android:id="@+id/add_pills1"
@@ -171,7 +181,7 @@
                         android:background="@drawable/bin"/>
 
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
 
                     <ImageButton
@@ -182,7 +192,7 @@
                         android:background="@drawable/alarmclock"
                         />
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
                     <Button
                         android:id="@+id/add_pills2"
@@ -204,6 +214,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linear_second_row"
         android:layout_marginTop="90dp"
         android:layout_below="@+id/firstLine"
         android:layout_width="match_parent"
@@ -256,7 +267,7 @@
                         android:background="@drawable/bin"/>
 
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
 
                     <ImageButton
@@ -268,7 +279,7 @@
 
                         />
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
                     <Button
                         android:id="@+id/add_pills3"
@@ -303,6 +314,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/greenbackground"/>
                 <TextView
+                    android:layout_marginTop="10dp"
                     android:layout_below="@id/name_4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -317,7 +329,7 @@
                     android:layout_height="30dp"
                     android:orientation="horizontal"
                     android:layout_below="@id/ilosc_4"
-                    android:layout_marginTop="20dp">
+                    android:layout_marginTop="10dp">
                     <Space
                         android:layout_width="25dp"
                         android:layout_height="wrap_content" />
@@ -329,7 +341,7 @@
                         android:background="@drawable/bin"/>
 
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="15dp"
                         android:layout_height="wrap_content" />
 
                     <ImageButton
@@ -341,7 +353,7 @@
 
                         />
                     <Space
-                        android:layout_width="20dp"
+                        android:layout_width="10dp"
                         android:layout_height="wrap_content" />
                     <Button
                         android:id="@+id/add_pills4"
@@ -358,5 +370,20 @@
             </RelativeLayout>
 
         </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_marginTop="40dp"
+        android:layout_below="@id/linear_second_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <ImageButton
+            android:layout_marginEnd="15dp"
+            android:id="@+id/make_alarm_list_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/list"/>
     </LinearLayout>
 </RelativeLayout>

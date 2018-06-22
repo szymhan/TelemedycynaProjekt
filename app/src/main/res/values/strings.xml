@@ -12,7 +12,7 @@
     <string name="detected_devices">Wykryte urządzenia :</string>
     <string name="Urzadzenie_polaczone">Urządzenie połączone   </string>
     <string name="enter_text">Wprowadź ilość : </string>
-    <string name="add_new_pills_text">Dodawanie tabletek</string>
+    <string name="add_new_pills_text">Ile masz tabeletek?</string>
     <!-- Menu items -->
     <string name="menu_connect">Connect</string>
     <string name="menu_disconnect">Disconnect</string>
@@ -35,4 +35,10 @@
     <string name="take">W E Ź </string>
     <string name="a_pill">T A B L E T K Ę !</string>
     <string name="i_took">WZIĄŁEM</string>
+    <string name="do_you_want_to_delete">Czy chcesz usunąć </string>
+    <string name="do_you_want_to_delete_two">wszystkie alarmy?</string>
+    <string name="back">WRÓĆ</string>
+    <string name="set_alarms">Ustaw alarmy </string>
+    <string name="set_alarms2">w kolejności chronologicznej</string>
+    <string name="set_alarms3">Nie ustawiaj niepotrzebnych alarmów!</string>
 </resources>

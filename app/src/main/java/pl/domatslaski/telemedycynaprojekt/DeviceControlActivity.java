@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -25,26 +24,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.UUID;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 
 public class DeviceControlActivity extends AppCompatActivity {
@@ -62,8 +53,11 @@ public class DeviceControlActivity extends AppCompatActivity {
     private final String LIST_UUID = "UUID";
     TextView mTextView1, mTextView2, mTextView3,mTextView4;
     Button mAddPills1, mAddPills2,mAddPills3, mAddPills4;
-    ImageButton mAddAlarm1,mAddAlarm2,mAddAlarm3,mAddAlarm4,mDelete1,mDelete2,mDelete3,mDelete4;
+    ImageButton mAddAlarm1,mAddAlarm2,mAddAlarm3,mAddAlarm4,mDelete1,mDelete2,mDelete3,mDelete4,mMakeAlarmListButton,mInfoButton;
     private static int getAddedPillsNumber;
+    private AlarmDbAdapter alarmDbAdapter;
+
+
 
 
     @Override
@@ -73,6 +67,94 @@ public class DeviceControlActivity extends AppCompatActivity {
 
         final Intent intent = getIntent();
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        Log.d("test","1" + mDeviceAddress);
+        initUIElements();
+
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            //Bluetooth is disabled
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(enableBtIntent);
+            finish();
+            return;
+
+
+        }
+
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "Brak wsparcia BLE.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
+        mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
+        alarmDbAdapter=new AlarmDbAdapter(getApplicationContext());
+        alarmDbAdapter.open();
+
+
+            addPills(mAddPills1,1);
+            addPills(mAddPills2,2);
+            addPills(mAddPills3,3);
+            addPills(mAddPills4,4);
+
+            setAlarmListener(mAddAlarm1,1);
+            setAlarmListener(mAddAlarm2,2);
+            setAlarmListener(mAddAlarm3,3);
+            setAlarmListener(mAddAlarm4,4);
+
+            setDeleteAlarms(mDelete1,1);
+            setDeleteAlarms(mDelete2,2);
+            setDeleteAlarms(mDelete3,3);
+            setDeleteAlarms(mDelete4,4);
+            runInfo(mInfoButton);
+            mMakeAlarmListButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Intent alarmListIntent = new Intent(getApplicationContext(),AlarmListActivity.class);
+                    startActivity(alarmListIntent);
+                }
+            });
+
+
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            //Bluetooth is disabled
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(enableBtIntent);
+            finish();
+            return;
+
+
+        }
+
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "Brak wsparcia BLE.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        //mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
+        mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
+        alarmDbAdapter.open();
+    }
+
+    @Override
+    protected void onPause() {
+        alarmDbAdapter.close();
+        mBluetoothGatt.disconnect();
+        super.onPause();
+    }
+
+    public void initUIElements(){
 
         mTextView1 = findViewById(R.id.ilosc_1);
         mTextView2=findViewById(R.id.ilosc_2);
@@ -90,69 +172,22 @@ public class DeviceControlActivity extends AppCompatActivity {
         mDelete2=findViewById(R.id.deletebutton2);
         mDelete3=findViewById(R.id.deletebutton3);
         mDelete4=findViewById(R.id.deletebutton4);
-
-
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-        mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
-        mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
-
-
-
-            addPills(mAddPills1,1);
-            addPills(mAddPills2,2);
-            addPills(mAddPills3,3);
-            addPills(mAddPills4,4);
-
-            setAlarmListener(mAddAlarm1,1);
-            setAlarmListener(mAddAlarm2,2);
-            setAlarmListener(mAddAlarm3,3);
-            setAlarmListener(mAddAlarm4,4);
-
+        mMakeAlarmListButton=findViewById(R.id.make_alarm_list_button);
+        mInfoButton=findViewById(R.id.info_button);
 
     }
 
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        /*
-         * We need to enforce that Bluetooth is first enabled, and take the
-         * user to settings to enable it if they have not done so.
-         */
-        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            //Bluetooth is disabled
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableBtIntent);
-            finish();
-            return;
-
-
-        }
-
-        /*
-         * Check for Bluetooth LE Support.  In production, our manifest entry will keep this
-         * from installing on these devices, but this will allow test devices or other
-         * sideloads to report whether or not the feature exists.
-         */
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "Brak wsparcia BLE.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        //mDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
-        mBluetoothGatt = mDevice.connectGatt(this, true, mGattCallback);
-
-
-    }
     /*MOJE NUMERY SERWISÓW I CHARAKTERYSTYK*/
     private static final UUID SERVICE_UUID         = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
+    private static final UUID SERVICE2_UUID         = UUID.fromString("02c0a600-9594-48e5-b5a9-f4564cc790b9");
     private static final UUID CHARACTERISTIC1_UUID = UUID.fromString( "beb5483e-36e1-4688-b7f5-ea07361b26a8");
     private static final UUID CHARACTERISTIC2_UUID = UUID.fromString( "324cc283-b005-4d4d-983d-4b869f282b47");
     private static final UUID CHARACTERISTIC3_UUID = UUID.fromString( "247dae46-a006-4e82-8ace-a09ec6f0cc01");
     private static final UUID CHARACTERISTIC4_UUID = UUID.fromString( "28439fca-4e20-4d59-9510-19b5c14bc918");
+    private static final UUID CHARACTERISTIC5_UUID = UUID.fromString( "10d8d6ac-486a-44f8-a726-7eea92c6c759");
+    private static final UUID CHARACTERISTIC6_UUID = UUID.fromString( "67653fcc-33f8-4fb6-a96e-164188a0eb36");
+    private static final UUID CHARACTERISTIC7_UUID = UUID.fromString( "902e1dce-1f19-4477-8d48-9fd234ccf903");
+    private static final UUID CHARACTERISTIC8_UUID = UUID.fromString( "2ab9392a-0c39-418f-8448-a9211885afa8");
     /* Client Configuration Descriptor */
     private static final UUID CONFIG_DESCRIPTOR    = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
@@ -341,13 +376,13 @@ public class DeviceControlActivity extends AppCompatActivity {
         private String connectionState(int status) {
             switch (status) {
                 case BluetoothProfile.STATE_CONNECTED:
-                    return "Connected";
+                    return "BAZINGA";
                 case BluetoothProfile.STATE_DISCONNECTED:
-                    return "Disconnected";
+                    return "BAZINGA";
                 case BluetoothProfile.STATE_CONNECTING:
-                    return "Connecting";
+                    return "BAZINGA";
                 case BluetoothProfile.STATE_DISCONNECTING:
-                    return "Disconnecting";
+                    return "BAZINGA";
                 default:
                     return String.valueOf(status);
             }
@@ -418,6 +453,7 @@ public class DeviceControlActivity extends AppCompatActivity {
             }
         }
     }
+
     private  MyHandler mHandler = new MyHandler(this);
 
 
@@ -466,11 +502,10 @@ public class DeviceControlActivity extends AppCompatActivity {
     private void addValueToPrzegrodka(BluetoothGattCharacteristic characteristic, int a)
     {
         byte [] dataInput1 = characteristic.getValue();
-        int przegrodka1 = toInt(dataInput1);
-        a = a+ przegrodka1;
+       // int przegrodka1 = toInt(dataInput1);
         if(a<=9)
         {
-            a=a+48; //zeby zamienic na hex
+            a=a+48; //Procedura zamiany na HEX, 0x30 (czyli 48) ==0
             byte[] bytes = ByteBuffer.allocate(4).putInt(a).array();
             byte [] postBytes={bytes[3]};
             characteristic.setValue(postBytes);
@@ -571,8 +606,18 @@ public class DeviceControlActivity extends AppCompatActivity {
                                         else if(switchInt==4)
                                         {
                                             BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                                                    .getCharacteristic(CHARACTERISTIC1_UUID);
+                                                    .getCharacteristic(CHARACTERISTIC4_UUID);
                                             addValueToPrzegrodka(characteristic,getAddedPillsNumber);
+                                        }
+                                        else if (switchInt==5)
+                                        {BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE2_UUID)
+                                                .getCharacteristic(CHARACTERISTIC5_UUID);
+                                            int a=49; //zeby zamienic na hex
+                                            byte[] bytes = ByteBuffer.allocate(4).putInt(a).array();
+                                            byte [] postBytes={bytes[3]};
+                                            characteristic.setValue(postBytes);
+                                            mBluetoothGatt.writeCharacteristic(characteristic);
+
                                         }
 
                                         getAddedPillsNumber=0;
@@ -605,9 +650,10 @@ public class DeviceControlActivity extends AppCompatActivity {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         context);
                 alertDialogBuilder.setView(setAlarmView);
-                final EditText userInput = setAlarmView.findViewById(R.id.hourInterval_edittext);
+
                 final  TimePicker timePicker = setAlarmView.findViewById(R.id.timepicker);
                 timePicker.setIs24HourView(true);
+
                 // set dialog message
                 alertDialogBuilder
                         .setCancelable(false)
@@ -615,18 +661,10 @@ public class DeviceControlActivity extends AppCompatActivity {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
 
-                                        if(userInput.getText().toString().equals(""))
-                                        {
-                                            dialog.cancel();
-                                            Toast.makeText(getApplicationContext(),"Nie ustawiłeś odstępu!",Toast.LENGTH_SHORT).show();
-                                        }
-                                        else
-                                        {
-                                            int hourInterval = Integer.parseInt(userInput.getText().toString());
-                                            setAlarm(buttonID,timePicker.getHour(),timePicker.getMinute(),hourInterval);
-                                        }
+                                         //   setAlarm(buttonID,timePicker.getHour(),timePicker.getMinute());
+//TODO: tutaj wykasowałem dodawanie alarmu z przycisku w kształcie zegara
 
-                                        //TODO: add the interval to database
+
 
                                     }
                                 })
@@ -646,7 +684,7 @@ public class DeviceControlActivity extends AppCompatActivity {
             }
         });
     }
-    void setAlarm(int id, int hour, int minute, int hourInterval)
+    void setAlarm(int id, int hour, int minute,int counter)
     {
         Calendar cal= Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY,hour);
@@ -654,18 +692,140 @@ public class DeviceControlActivity extends AppCompatActivity {
         cal.set(Calendar.SECOND,0);
       //  cal.add(Calendar.MINUTE,1);
         AlarmManager alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-      intent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
+      Intent intent = new Intent(DeviceControlActivity.this, AlarmReceiver.class);
+     // Intent intent = new Intent(this, AlarmReceiver.class);
+       intent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
        intent.putExtra("PRZEGRODKA_NUMBER",id);
-       intent.putExtra("HOUR_INTERVAL",hourInterval);
-        PendingIntent pendingIntent=PendingIntent.getBroadcast(this,id,intent,0);
+       intent.putExtra("COUNTER",counter);
+       intent.putExtra("ELEMENT_NUMBER",0);
+       intent.putExtra("DEVICE_ADDRESS",mDeviceAddress);
+        Log.d("test","2" + mDeviceAddress);
+        PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplicationContext(),id,intent,0);
+       // PendingIntent pendingIntent=PendingIntent.getBroadcast(this,id,intent,0);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pendingIntent);
-        Log.d(TAG,cal.getTimeInMillis() + "pozostalo do alarmu");
         Log.d(TAG,cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+" dodano alarm");
+     //   alarmDbAdapter.insertAlarm(id,hour,minute);
         Toast.makeText(getApplicationContext(),cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+" dodano alarm",Toast.LENGTH_SHORT).show();
         //TODO: PROCES DODAWANIA DO BAZY, SPRAWDZENIE POPRAWNOSCI GODZINY BLA BLA BLA
     }
 
+    void setDeleteAlarms(ImageButton button, final int przegrodkaID){
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(context);
+                View setAlarmView = li.inflate(R.layout.delete_request, null);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+                alertDialogBuilder.setView(setAlarmView);
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("TAK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        AlarmManager alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                                        Calendar cal= Calendar.getInstance();
+                                        cal.add(Calendar.MINUTE,1);
+                                        Intent deleteIntent = new Intent(DeviceControlActivity.this, AlarmReceiver.class);
+                                        deleteIntent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
+                                        deleteIntent.putExtra("PRZEGRODKA_NUMBER",przegrodkaID);
+                                        deleteIntent.putExtra("DELETE",1);
+                                        PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplicationContext(),przegrodkaID,deleteIntent,0);
+                                        alarmManager.setExact(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pendingIntent); //procedura usunięcia powiadomienia
+                                        alarmManager.cancel(pendingIntent);
+                                        alarmDbAdapter.deleteAlarmWithPRZEGRODKAID(przegrodkaID);
+                                        Toast.makeText(getApplicationContext(),"Usunięto",Toast.LENGTH_SHORT).show();
+
+                                    }
+                                })
+                        .setNegativeButton("NIE",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        });
+    }
+
+    void runInfo(ImageButton button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog dialog = new Dialog(DeviceControlActivity.this,R.style.mydialog);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.alarm_popup_window);
+
+                dialog.setCanceledOnTouchOutside(true);
+
+              final TimePicker timePicker1 = dialog.findViewById(R.id.timepicker1);
+                final TimePicker timePicker2 = dialog.findViewById(R.id.timepicker2);
+                final TimePicker timePicker3 = dialog.findViewById(R.id.timepicker3);
+                final TimePicker timePicker4 = dialog.findViewById(R.id.timepicker4);
+                final TimePicker timePicker5 = dialog.findViewById(R.id.timepicker5);
+                timePicker1.setIs24HourView(true);
+                timePicker2.setIs24HourView(true);
+                timePicker3.setIs24HourView(true);
+                timePicker4.setIs24HourView(true);
+                timePicker5.setIs24HourView(true);
+                timePicker1.setHour(0);
+                timePicker1.setMinute(0);
+                timePicker2.setHour(0);
+                timePicker2.setMinute(0);
+                timePicker3.setHour(0);
+                timePicker3.setMinute(0);
+                timePicker4.setHour(0);
+                timePicker4.setMinute(0);
+                timePicker5.setHour(0);
+                timePicker5.setMinute(0);
+
+                Button ok = dialog.findViewById(R.id.alarm_popup_accept_button);
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    int counter=0;
+                    if(timePicker1.getHour()!=0) {
+                        counter++;
+                        alarmDbAdapter.insertAlarm(1,timePicker1.getHour(),timePicker1.getMinute());
+                    }
+                    if(timePicker2.getHour()!=0)
+                    { counter++;
+                        alarmDbAdapter.insertAlarm(1,timePicker2.getHour(),timePicker2.getMinute());
+                    }
+
+                    if(timePicker3.getHour()!=0) {
+                        counter++;
+                        alarmDbAdapter.insertAlarm(1,timePicker3.getHour(),timePicker3.getMinute());
+                    }
+                    if(timePicker4.getHour()!=0) {
+                        counter++;
+                        alarmDbAdapter.insertAlarm(1,timePicker4.getHour(),timePicker4.getMinute());
+                    }
+                    if(timePicker5.getHour()!=0) {
+                        counter++;
+                        alarmDbAdapter.insertAlarm(1,timePicker5.getHour(),timePicker5.getMinute());
+                    }
+                    setAlarm(1,timePicker1.getHour(),timePicker1.getMinute(),counter);
+
+
+                    }
+                });
+                dialog.show();
+             //   Window window = dialog.getWindow();
+              //  window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
+
+            }
+        });
+
+    }
 
 
 

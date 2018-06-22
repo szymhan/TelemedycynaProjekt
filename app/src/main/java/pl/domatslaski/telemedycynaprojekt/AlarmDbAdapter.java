@@ -69,9 +69,9 @@ public class AlarmDbAdapter {
         newAlarmValues.put(KEY_MINUTE,minute);
         return db.insert(DB_ALARM_TABLE,null,newAlarmValues);
     }
-    public boolean deleteAlarmWithPRZEGRODKAID(int id)
+    public boolean deleteAlarmWithPRZEGRODKAID(int przegrodkaID)
     {
-        String where = KEY_PRZEGRODKAID+"="+id;
+        String where = KEY_PRZEGRODKAID+"="+przegrodkaID;
         return db.delete(DB_ALARM_TABLE,where,null)>0;
     }
 
@@ -79,11 +79,16 @@ public class AlarmDbAdapter {
         String [] columns = {KEY_ID,KEY_PRZEGRODKAID,KEY_HOUR,KEY_MINUTE};
         return db.query(DB_ALARM_TABLE,columns,null,null,null,null,null);
     }
+    public Cursor getAllAlarmsByPRZEGRODKAID(int przegrodkaid ){
+        String where = KEY_PRZEGRODKAID+"="+przegrodkaid;
+        String [] columns = {KEY_ID,KEY_PRZEGRODKAID,KEY_HOUR,KEY_MINUTE};
+        return db.query(DB_ALARM_TABLE,columns,where,null,null,null,KEY_HOUR+" ASC");
+    }
 
     public AlarmTask[]  getAlarmsByPRZEGRODKAID(int id){
         String [] columns = {KEY_ID,KEY_PRZEGRODKAID,KEY_HOUR,KEY_MINUTE};
         String where = KEY_PRZEGRODKAID+"="+id;
-        Cursor cursor= db.query(DB_ALARM_TABLE,columns,where,null,null,null,null);
+        Cursor cursor= db.query(DB_ALARM_TABLE,columns,where,null,null,null,KEY_HOUR+"ASC");
 
         if (cursor!=null)
         {
@@ -98,6 +103,7 @@ public class AlarmDbAdapter {
                 result[i]=new AlarmTask(_id,przegrodkaID,hour,minute);
                 i++;
             }
+            cursor.close();
             return result;
         }
         else {return null;}

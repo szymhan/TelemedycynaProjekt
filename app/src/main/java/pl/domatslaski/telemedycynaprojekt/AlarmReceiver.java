@@ -5,39 +5,71 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Vibrator;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
-    private int id;
-    private int hourInterval;
+
     private static final String PRZEGRODKA_NUMBER="PRZEGRODKA_NUMBER";
-    private static final String HOUR_INTERVAL="HOUR_INTERVAL";
+    private static final String DELETE="DELETE";
+    public static final String DEVICE_ADDRESS="DEVICE_ADDRESS";
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        id=intent.getIntExtra(PRZEGRODKA_NUMBER,0);
-        hourInterval=intent.getIntExtra(HOUR_INTERVAL,12);
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Vibrator v;
-        v=(Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(3000);
-        Toast.makeText(context,"ALARM , id: "+id+" ,przerwa:"+hourInterval ,Toast.LENGTH_SHORT).show();
+        Log.d( AlarmReceiver.class.getSimpleName(), "Wszedłem do AlarmReceiver");
+        int id=intent.getIntExtra(PRZEGRODKA_NUMBER,0);
+       int  toDelete=intent.getIntExtra(DELETE,0);
+       int counter = intent.getIntExtra("COUNTER",0);
+       int elementNumber = intent.getIntExtra("ELEMENT_NUMBER",0);
+       String  mDeviceAddress=intent.getStringExtra(DEVICE_ADDRESS);
+        Log.d("test","3" + mDeviceAddress);
+        if(toDelete==1)
+        {
 
-        Calendar cal= Calendar.getInstance();
-        cal.add(Calendar.MINUTE,2);
-        Intent confirmationIntent = new Intent(context, AlarmReceiver.class);
-        confirmationIntent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
-        confirmationIntent.putExtra("PRZEGRODKA_NUMBER",id);
-        confirmationIntent.putExtra("HOUR_INTERVAL",hourInterval);
-        PendingIntent pendingIntent=PendingIntent.getBroadcast(context,id,confirmationIntent,0);
-        am.setExact(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pendingIntent);
+        }
+        else {
+           // AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        final Intent openNextIntent = new Intent(context,PillConfirmationActivity.class);
-        openNextIntent.putExtra(PRZEGRODKA_NUMBER,id);
-        openNextIntent.putExtra(HOUR_INTERVAL,hourInterval);
-        context.startActivity(openNextIntent);
+           // Toast.makeText(context,"ALARM , id: "+id ,Toast.LENGTH_SHORT).show();
+
+         /*   alarmDbAdapter=new AlarmDbAdapter(context);
+            alarmDbAdapter.open();
+           AlarmTask[] alarms = alarmDbAdapter.getAlarmsByPRZEGRODKAID(id);
+           AlarmTask nextAlarm;
+           if(elementNumber+1<=alarms.length-1)
+           {
+               nextAlarm = alarms[elementNumber+1];
+           }
+           else
+           {
+               nextAlarm = alarms[0];
+           }
+
+
+            Calendar cal= Calendar.getInstance();
+            //cal.add(Calendar.MINUTE,2);
+            cal.set(Calendar.HOUR_OF_DAY, nextAlarm.getHour());
+            cal.set(Calendar.MINUTE,nextAlarm.getMinute());
+            Intent confirmationIntent = new Intent(context, AlarmReceiver.class);
+            confirmationIntent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
+            confirmationIntent.putExtra("PRZEGRODKA_NUMBER",id);
+            confirmationIntent.putExtra("ELEMENT_NUMBER",elementNumber+1);
+            PendingIntent pendingIntent=PendingIntent.getBroadcast(context,id,confirmationIntent,0);
+            am.setExact(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pendingIntent);
+            */
+            // alarmDbAdapter.close();
+            final Intent openNextIntent = new Intent(context,PillConfirmationActivity.class);
+            openNextIntent.putExtra(PRZEGRODKA_NUMBER,id);
+            openNextIntent.putExtra(DEVICE_ADDRESS,mDeviceAddress);
+            openNextIntent.putExtra("ELEMENT_NUMBER",elementNumber+1);
+            context.startActivity(openNextIntent);
+
+        }
+
 
 
 
