@@ -1,5 +1,7 @@
 package pl.domatslaski.telemedycynaprojekt;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.util.Calendar;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -33,12 +36,9 @@ public class PillConfirmationActivity extends AppCompatActivity {
 
     /*MOJE NUMERY SERWISÓW I CHARAKTERYSTYK*/
     public static final String TAG = PillConfirmationActivity.class.getSimpleName();
-    private static final UUID SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
+    public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    public static final String ELEMENT_NUMBER = "ELEMENT_NUMBER";
     private static final UUID SERVICE2_UUID = UUID.fromString("02c0a600-9594-48e5-b5a9-f4564cc790b9");
-    private static final UUID CHARACTERISTIC1_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8");
-    private static final UUID CHARACTERISTIC2_UUID = UUID.fromString("324cc283-b005-4d4d-983d-4b869f282b47");
-    private static final UUID CHARACTERISTIC3_UUID = UUID.fromString("247dae46-a006-4e82-8ace-a09ec6f0cc01");
-    private static final UUID CHARACTERISTIC4_UUID = UUID.fromString("28439fca-4e20-4d59-9510-19b5c14bc918");
     private static final UUID CHARACTERISTIC5_UUID = UUID.fromString("10d8d6ac-486a-44f8-a726-7eea92c6c759");
     private static final UUID CHARACTERISTIC6_UUID = UUID.fromString("67653fcc-33f8-4fb6-a96e-164188a0eb36");
     private static final UUID CHARACTERISTIC7_UUID = UUID.fromString("902e1dce-1f19-4477-8d48-9fd234ccf903");
@@ -60,12 +60,13 @@ public class PillConfirmationActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         final Intent intent = getIntent();
         final int id = intent.getIntExtra("PRZEGRODKA_NUMBER", 0);
+        int counter = intent.getIntExtra("COUNTER", 0);
+        int elementNumber = intent.getIntExtra(ELEMENT_NUMBER, 10);
+        elementNumber+=1;
         String mDeviceAddress = intent.getStringExtra("DEVICE_ADDRESS");
         Log.d("test", "4" + mDeviceAddress);
 
-        alarmDbAdapter = new AlarmDbAdapter(this);
-        alarmDbAdapter.open();
-        alarmDbAdapter.close();
+
       /*  if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             //Bluetooth is disabled
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -112,6 +113,8 @@ public class PillConfirmationActivity extends AppCompatActivity {
         }
 
 
+        setNextAlarm( id, counter,elementNumber,mDeviceAddress);
+
         mButton = findViewById(R.id.i_took_a_pill_button);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +124,10 @@ public class PillConfirmationActivity extends AppCompatActivity {
 
             }
         });
+
+        Vibrator v;
+        v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(3000);
     }
 
 
@@ -210,71 +217,7 @@ public class PillConfirmationActivity extends AppCompatActivity {
             }
         }
     };
-/*
-    private static final int MSG_1 = 105;
-    private static final int MSG_2 = 106;
-    private static final int MSG_3 = 107;
-    private static final int MSG_4 = 108;
-    //  private static final int MSG_PROGRESS = 201;
-    // private static final int MSG_DISMISS = 202;
-    private static final int MSG_CLEAR = 301;
 
-   private static class MyHandler extends Handler
-    {
-        private final WeakReference<PillConfirmationActivity> mActivity;
-        public MyHandler( PillConfirmationActivity activity){
-            mActivity = new WeakReference<PillConfirmationActivity>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            PillConfirmationActivity activity = mActivity.get();
-            if (activity!=null)
-            {
-
-                BluetoothGattCharacteristic characteristic;
-                switch (msg.what) {
-                    case MSG_1:
-                        characteristic = (BluetoothGattCharacteristic) msg.obj;
-                        if (characteristic.getValue() == null) {
-                            Log.w(TAG, "Nie udało się zapalić diody 1");
-                            return;
-                        }
-
-                        activity.lightUpDiode(1);
-                        break;
-                    case MSG_2:
-                        characteristic = (BluetoothGattCharacteristic) msg.obj;
-                        if (characteristic.getValue() == null) {
-                            Log.w(TAG, "Nie udało się zapalić diody 2");
-                            return;
-                        }
-                        activity.lightUpDiode(2);
-                        break;
-                    case MSG_3:
-                        characteristic = (BluetoothGattCharacteristic) msg.obj;
-                        if (characteristic.getValue() == null) {
-                            Log.w(TAG, "Nie udało się zapalić diody 3");
-                            return;
-                        }
-                        activity.lightUpDiode(3);
-                        break;
-                    case MSG_4:
-                        characteristic = (BluetoothGattCharacteristic) msg.obj;
-                        if (characteristic.getValue() == null) {
-                            Log.w(TAG, "Nie udało się zapalić diody 4");
-                            return;
-                        }
-                       activity.lightUpDiode(4);
-                        break;
-
-                }
-            }
-        }
-    }
-
-    private MyHandler mHandler = new MyHandler(this);
-    */
 
     public void lightUpDiode(int id) {
 
@@ -288,9 +231,6 @@ public class PillConfirmationActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            Vibrator v;
-            v=(Vibrator)this.getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(3000);
 
             BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE2_UUID)
                     .getCharacteristic(CHARACTERISTIC5_UUID);
@@ -298,75 +238,89 @@ public class PillConfirmationActivity extends AppCompatActivity {
             byte[] postBytes = {bytes[3]};
             characteristic.setValue(postBytes);
             mBluetoothGatt.writeCharacteristic(characteristic);
-            characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                    .getCharacteristic(CHARACTERISTIC1_UUID);
-            deleteValueFromPrzegrodka(characteristic);
 
         } else if (id == 2) {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE2_UUID)
                     .getCharacteristic(CHARACTERISTIC6_UUID);
             byte[] bytes = ByteBuffer.allocate(4).putInt(oneInHex).array();
             byte[] postBytes = {bytes[3]};
             characteristic.setValue(postBytes);
             mBluetoothGatt.writeCharacteristic(characteristic);
-            characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                    .getCharacteristic(CHARACTERISTIC2_UUID);
-            deleteValueFromPrzegrodka(characteristic);
+
 
         } else if (id == 3) {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE2_UUID)
                     .getCharacteristic(CHARACTERISTIC7_UUID);
             byte[] bytes = ByteBuffer.allocate(4).putInt(oneInHex).array();
             byte[] postBytes = {bytes[3]};
             characteristic.setValue(postBytes);
             mBluetoothGatt.writeCharacteristic(characteristic);
-            characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                    .getCharacteristic(CHARACTERISTIC3_UUID);
-            deleteValueFromPrzegrodka(characteristic);
+
         } else if (id == 4) {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(SERVICE2_UUID)
                     .getCharacteristic(CHARACTERISTIC8_UUID);
             byte[] bytes = ByteBuffer.allocate(4).putInt(oneInHex).array();
             byte[] postBytes = {bytes[3]};
             characteristic.setValue(postBytes);
             mBluetoothGatt.writeCharacteristic(characteristic);
-            characteristic = mBluetoothGatt.getService(SERVICE_UUID)
-                    .getCharacteristic(CHARACTERISTIC4_UUID);
-            deleteValueFromPrzegrodka(characteristic);
+
         }
 
     }
 
-    private void deleteValueFromPrzegrodka(BluetoothGattCharacteristic characteristic) {
-        byte[] dataInput1 = characteristic.getValue();
-        int przegrodka1 = toInt(dataInput1);
-        przegrodka1 = przegrodka1 - 1;
-        if (przegrodka1 > 0) {
-            przegrodka1 = przegrodka1 + 48; //zeby zamienic na hex
-            byte[] bytes = ByteBuffer.allocate(4).putInt(przegrodka1).array();
-            byte[] postBytes = {bytes[3]};
-            characteristic.setValue(postBytes);
-            mBluetoothGatt.writeCharacteristic(characteristic);
-        } else {
-            Toast.makeText(this, "Nie można mieć mniej niż 0 tabletek", Toast.LENGTH_SHORT).show();
+
+    private void setNextAlarm(int id, int counter, int elementNumber, String mDeviceAddress) {
+        AlarmManager am = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Calendar cal = Calendar.getInstance();
+        alarmDbAdapter = new AlarmDbAdapter(this);
+        alarmDbAdapter.open();
+
+        AlarmTask[] alarms = alarmDbAdapter.getAlarmsByPRZEGRODKAID(id);
+        AlarmTask nextAlarm;
+        if (elementNumber <= alarms.length - 1) {
+            nextAlarm = alarms[elementNumber];
+        }
+        else {
+            nextAlarm = alarms[0];
+            elementNumber=0;
+            cal.add(Calendar.DATE,1);
         }
 
-    }
 
-    private String bytesToString(byte[] b) {
-        try {
-            return new String(b, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            Log.d(TAG, "NIE PYKŁO");
-        }
-        return null;
-    }
 
-    private int toInt(byte[] b1) {
-        String s1 = bytesToString(b1);
-        Log.d(TAG, s1);
-        int y = Integer.parseInt(s1);
-        return y;
+        //cal.add(Calendar.MINUTE,2);
+        cal.set(Calendar.HOUR_OF_DAY, nextAlarm.getHour());
+        cal.set(Calendar.MINUTE, nextAlarm.getMinute());
+        Intent confirmationIntent = new Intent(this, AlarmReceiver.class);
+        confirmationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        confirmationIntent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
+        confirmationIntent.putExtra("PRZEGRODKA_NUMBER", id);
+        confirmationIntent.putExtra(ELEMENT_NUMBER, elementNumber);
+        confirmationIntent.putExtra("COUNTER", counter);
+        confirmationIntent.putExtra(DEVICE_ADDRESS, mDeviceAddress);
+        super.onNewIntent(confirmationIntent);
+        this.setIntent(confirmationIntent);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id, confirmationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        alarmDbAdapter.close();
     }
 
 }

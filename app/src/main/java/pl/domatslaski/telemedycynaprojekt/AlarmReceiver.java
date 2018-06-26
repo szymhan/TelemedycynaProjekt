@@ -17,14 +17,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     private static final String PRZEGRODKA_NUMBER="PRZEGRODKA_NUMBER";
     private static final String DELETE="DELETE";
     public static final String DEVICE_ADDRESS="DEVICE_ADDRESS";
-
+    public static final String ELEMENT_NUMBER = "ELEMENT_NUMBER";
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d( AlarmReceiver.class.getSimpleName(), "Wszedłem do AlarmReceiver");
         int id=intent.getIntExtra(PRZEGRODKA_NUMBER,0);
        int  toDelete=intent.getIntExtra(DELETE,0);
        int counter = intent.getIntExtra("COUNTER",0);
-       int elementNumber = intent.getIntExtra("ELEMENT_NUMBER",0);
+       int elementNumber = intent.getIntExtra(ELEMENT_NUMBER,10);
        String  mDeviceAddress=intent.getStringExtra(DEVICE_ADDRESS);
         Log.d("test","3" + mDeviceAddress);
         if(toDelete==1)
@@ -35,6 +35,7 @@ public class AlarmReceiver extends BroadcastReceiver {
            // AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
            // Toast.makeText(context,"ALARM , id: "+id ,Toast.LENGTH_SHORT).show();
+
 
          /*   alarmDbAdapter=new AlarmDbAdapter(context);
             alarmDbAdapter.open();
@@ -65,7 +66,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             final Intent openNextIntent = new Intent(context,PillConfirmationActivity.class);
             openNextIntent.putExtra(PRZEGRODKA_NUMBER,id);
             openNextIntent.putExtra(DEVICE_ADDRESS,mDeviceAddress);
-            openNextIntent.putExtra("ELEMENT_NUMBER",elementNumber+1);
+            openNextIntent.putExtra(ELEMENT_NUMBER,elementNumber);
+            openNextIntent.putExtra("COUNTER", counter);
             context.startActivity(openNextIntent);
 
         }

@@ -99,16 +99,18 @@ public class DeviceControlActivity extends AppCompatActivity {
             addPills(mAddPills3,3);
             addPills(mAddPills4,4);
 
-            setAlarmListener(mAddAlarm1,1);
-            setAlarmListener(mAddAlarm2,2);
-            setAlarmListener(mAddAlarm3,3);
-            setAlarmListener(mAddAlarm4,4);
+            planAlarms(mAddAlarm1,1);
+            planAlarms(mAddAlarm2,2);
+            planAlarms(mAddAlarm3,3);
+            planAlarms(mAddAlarm4,4);
 
             setDeleteAlarms(mDelete1,1);
             setDeleteAlarms(mDelete2,2);
             setDeleteAlarms(mDelete3,3);
             setDeleteAlarms(mDelete4,4);
-            runInfo(mInfoButton);
+
+            runInfo();
+
             mMakeAlarmListButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -640,50 +642,7 @@ public class DeviceControlActivity extends AppCompatActivity {
         });
     }
 
-    void setAlarmListener(ImageButton button, final int buttonID)
-    {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(context);
-                View setAlarmView = li.inflate(R.layout.alarm_setting, null);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        context);
-                alertDialogBuilder.setView(setAlarmView);
 
-                final  TimePicker timePicker = setAlarmView.findViewById(R.id.timepicker);
-                timePicker.setIs24HourView(true);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-
-                                         //   setAlarm(buttonID,timePicker.getHour(),timePicker.getMinute());
-//TODO: tutaj wykasowałem dodawanie alarmu z przycisku w kształcie zegara
-
-
-
-                                    }
-                                })
-                        .setNegativeButton("Anuluj",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                // show it
-                alertDialog.show();
-
-            }
-        });
-    }
     void setAlarm(int id, int hour, int minute,int counter)
     {
         Calendar cal= Calendar.getInstance();
@@ -706,7 +665,7 @@ public class DeviceControlActivity extends AppCompatActivity {
         Log.d(TAG,cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+" dodano alarm");
      //   alarmDbAdapter.insertAlarm(id,hour,minute);
         Toast.makeText(getApplicationContext(),cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+" dodano alarm",Toast.LENGTH_SHORT).show();
-        //TODO: PROCES DODAWANIA DO BAZY, SPRAWDZENIE POPRAWNOSCI GODZINY BLA BLA BLA
+
     }
 
     void setDeleteAlarms(ImageButton button, final int przegrodkaID){
@@ -726,7 +685,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog,int id) {
                                         AlarmManager alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
                                         Calendar cal= Calendar.getInstance();
-                                        cal.add(Calendar.MINUTE,1);
+                                        //cal.add(Calendar.MINUTE,1);
                                         Intent deleteIntent = new Intent(DeviceControlActivity.this, AlarmReceiver.class);
                                         deleteIntent.setAction("pl.domatslaski.telemedycynaprojekt.START_ALARM");
                                         deleteIntent.putExtra("PRZEGRODKA_NUMBER",przegrodkaID);
@@ -756,11 +715,12 @@ public class DeviceControlActivity extends AppCompatActivity {
         });
     }
 
-    void runInfo(ImageButton button) {
+    void planAlarms(ImageButton button, int id) {
+        final int przegrodka = id;
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog dialog = new Dialog(DeviceControlActivity.this,R.style.mydialog);
+                final Dialog dialog = new Dialog(DeviceControlActivity.this,R.style.mydialog);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setContentView(R.layout.alarm_popup_window);
 
@@ -792,30 +752,30 @@ public class DeviceControlActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                     int counter=0;
-                    if(timePicker1.getHour()!=0) {
+                    if(timePicker1.getHour()!=0 || timePicker1.getMinute()!=0) {
                         counter++;
-                        alarmDbAdapter.insertAlarm(1,timePicker1.getHour(),timePicker1.getMinute());
+                        alarmDbAdapter.insertAlarm(przegrodka,timePicker1.getHour(),timePicker1.getMinute());
                     }
-                    if(timePicker2.getHour()!=0)
+                    if(timePicker2.getHour()!=0|| timePicker2.getMinute()!=0)
                     { counter++;
-                        alarmDbAdapter.insertAlarm(1,timePicker2.getHour(),timePicker2.getMinute());
+                        alarmDbAdapter.insertAlarm(przegrodka,timePicker2.getHour(),timePicker2.getMinute());
                     }
 
-                    if(timePicker3.getHour()!=0) {
+                    if(timePicker3.getHour()!=0 || timePicker3.getMinute()!=0) {
                         counter++;
-                        alarmDbAdapter.insertAlarm(1,timePicker3.getHour(),timePicker3.getMinute());
+                        alarmDbAdapter.insertAlarm(przegrodka,timePicker3.getHour(),timePicker3.getMinute());
                     }
-                    if(timePicker4.getHour()!=0) {
+                    if(timePicker4.getHour()!=0|| timePicker4.getMinute()!=0) {
                         counter++;
-                        alarmDbAdapter.insertAlarm(1,timePicker4.getHour(),timePicker4.getMinute());
+                        alarmDbAdapter.insertAlarm(przegrodka,timePicker4.getHour(),timePicker4.getMinute());
                     }
-                    if(timePicker5.getHour()!=0) {
+                    if(timePicker5.getHour()!=0|| timePicker5.getMinute()!=0) {
                         counter++;
-                        alarmDbAdapter.insertAlarm(1,timePicker5.getHour(),timePicker5.getMinute());
+                        alarmDbAdapter.insertAlarm(przegrodka,timePicker5.getHour(),timePicker5.getMinute());
                     }
-                    setAlarm(1,timePicker1.getHour(),timePicker1.getMinute(),counter);
+                    setAlarm(przegrodka,timePicker1.getHour(),timePicker1.getMinute(),counter);
 
-
+                        dialog.cancel();
                     }
                 });
                 dialog.show();
@@ -825,6 +785,32 @@ public class DeviceControlActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    void runInfo(){
+
+        mInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final Dialog dialog = new Dialog(DeviceControlActivity.this,R.style.mydialog);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.info);
+
+                dialog.setCanceledOnTouchOutside(true);
+
+                Button button = dialog.findViewById(R.id.welcome_exit);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
+
+
+                dialog.show();
+            }
+        });
     }
 
 

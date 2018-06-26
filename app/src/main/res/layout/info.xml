@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/welcome_text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/welcome"
+        android:textSize="20sp"
+        android:gravity="center_horizontal"
+        android:textColor="@color/blackText"/>
+    <TextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/welcome_text2"
+        android:layout_below="@id/welcome_text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="20sp"
+        android:gravity="center_horizontal"
+        android:textColor="@color/blackText"/>
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:id="@+id/welcome_linear1"
+        android:layout_below="@id/welcome_text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="50dp"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:layout_height="wrap_content"
+            android:background="@drawable/add_pills_button"/>
+        <TextView
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome_xml_1"
+            android:textSize="16sp"
+            android:textColor="@color/blackText"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:id="@+id/welcome_linear2"
+        android:layout_below="@id/welcome_linear1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/alarmclock"/>
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome_xml_2"
+            android:textSize="16sp"
+        android:textColor="@color/blackText"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:id="@+id/welcome_linear3"
+        android:layout_below="@id/welcome_linear2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bin"/>
+        <TextView
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome_xml_3"
+            android:layout_gravity="center_vertical"
+            android:textSize="16sp"
+            android:textColor="@color/blackText"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:id="@+id/welcome_linear4"
+        android:layout_below="@id/welcome_linear3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/info"/>
+        <TextView
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome_xml_4"
+            android:textColor="@color/blackText"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/welcome_linear4">
+
+        <Button
+            android:id="@+id/welcome_exit"
+            android:layout_marginStart="100dp"
+            android:layout_marginEnd="100dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Wróć"
+            android:textSize="20sp"
+            />
+    </LinearLayout>
+
+
+</RelativeLayout>

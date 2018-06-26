@@ -41,4 +41,9 @@
     <string name="set_alarms">Ustaw alarmy </string>
     <string name="set_alarms2">w kolejności chronologicznej</string>
     <string name="set_alarms3">Nie ustawiaj niepotrzebnych alarmów!</string>
+    <string name="welcome">Witaj w aplikacji</string>
+    <string name="welcome_xml_1">Użyj, aby ustawić ilość tabletek w przegródce</string>
+    <string name="welcome_xml_2">Użyj, aby ustawić plan alarmów dla danej przegródki</string>
+    <string name="welcome_xml_3">Ten przycisk umożliwia skasowanie wszystkich zaplanowanych alarmów. Jest konieczny do ustawienia nowego planu.</string>
+    <string name="welcome_xml_4">Przycisk informacyjny służy do przeglądania wszystkich zaplanowanych alarmów dla dlanej przegródki</string>
 </resources>

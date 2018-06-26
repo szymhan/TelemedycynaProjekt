@@ -88,7 +88,7 @@ public class AlarmDbAdapter {
     public AlarmTask[]  getAlarmsByPRZEGRODKAID(int id){
         String [] columns = {KEY_ID,KEY_PRZEGRODKAID,KEY_HOUR,KEY_MINUTE};
         String where = KEY_PRZEGRODKAID+"="+id;
-        Cursor cursor= db.query(DB_ALARM_TABLE,columns,where,null,null,null,KEY_HOUR+"ASC");
+        Cursor cursor= db.query(DB_ALARM_TABLE,columns,where,null,null,null,KEY_HOUR+" ASC");
 
         if (cursor!=null)
         {
